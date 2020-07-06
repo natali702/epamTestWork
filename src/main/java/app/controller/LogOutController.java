@@ -1,20 +1,23 @@
-package app.servlets;
+package app.controller;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-public class logoutServlet extends HttpServlet {
+@WebServlet("/logout")
+public class LogOutController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("doDet LogOutController");
         final HttpSession session = req.getSession();
         session.removeAttribute("password");
-        session.removeAttribute("login");
-        //session.removeAttribute("role");
-        System.out.println(req.getContextPath());
-        resp.sendRedirect("/");
+        session.removeAttribute("username");
+        session.removeAttribute("user");
+        req.getRequestDispatcher("WEB-INF/views/login.jsp").forward(req, resp);
+
     }
 }
