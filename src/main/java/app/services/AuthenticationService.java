@@ -9,21 +9,29 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class AuthenticationService implements Authentication {
+
+    private String userHash = "";
+
     private Map<String, String> userProfileData = new ConcurrentHashMap<>();
     {
-        userProfileData.put("name1", DigestUtils.md5Hex("1234"));
-
-    }
-    @Override
-    public boolean isUserNamePresent(String userName) {
-        return userProfileData.containsKey(userName);
+        userProfileData.put("Natali", DigestUtils.md5Hex("1"));
     }
 
     @Override
-    public boolean isUserAuthentication(String userName, String password) {
-        if(!isUserNamePresent(userName)){
+    public boolean isUserPresent(String username) {
+        return userProfileData.containsKey(username);
+    }
+
+    @Override
+    public boolean isUserAuthenticated(String username, String password) {
+        if(!isUserPresent(username)){
             return false;
         }
-        return userProfileData.get(userName).equals(DigestUtils.md5Hex(password));
+        return userProfileData.get(username).equals(DigestUtils.md5Hex(password));
+    }
+
+    @Override
+    public void setUserData(String username, String password) {
+        userProfileData.put(username, DigestUtils.md5Hex(password));
     }
 }
