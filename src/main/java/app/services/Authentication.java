@@ -1,6 +1,7 @@
 package app.services;
 
 public interface Authentication {
-    boolean isUserNamePresent(String userName);
-    boolean isUserAuthentication(String userName, String password);
+    boolean isUserPresent(String username);
+    boolean isUserAuthenticated(String username, String password);
+    void setUserData(String username, String password);
 }
