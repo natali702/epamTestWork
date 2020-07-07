@@ -10,12 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 public class AuthenticationService implements Authentication {
 
-    private String userHash = "";
-
     private Map<String, String> userProfileData = new ConcurrentHashMap<>();
-    {
-        userProfileData.put("Natali", DigestUtils.md5Hex("1"));
-    }
+
 
     @Override
     public boolean isUserPresent(String username) {
