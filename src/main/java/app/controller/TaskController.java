@@ -2,6 +2,8 @@ package app.controller;
 
 import app.dao.TaskDao;
 import app.model.Task;
+import app.model.User;
+import app.services.Authentication;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -32,15 +34,11 @@ public class TaskController extends HttpServlet {
             throws ServletException, IOException {
         System.out.println("start doGet from TaskController");
         String action = request.getServletPath();
-        String isImage = "false";
-        if(action.startsWith("/images")){
-            isImage = "true";
-        }
-
+        boolean hasImage = action.startsWith("/images");
 
         HttpSession session = request.getSession(false);
         try {
-            if(session != null && !isImage.equals("true")) {
+            if(session != null && !hasImage) {
                 switch (action) {
                     case "/new":
                         showNewForm(request, response);
@@ -104,30 +102,35 @@ public class TaskController extends HttpServlet {
     private void insertTask(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         System.out.println("start insertTask from TaskController");
         String title = request.getParameter("title");
-        String username = request.getParameter("username");
+        HttpSession session = request.getSession(false);
+        User user = (User) session.getAttribute("user");
+//        String username = request.getParameter("username");
+        String username = user.getUsername();
         String description = request.getParameter("description");
 
 		/*DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-mm-dd");
 		LocalDate targetDate = LocalDate.parse(request.getParameter("targetDate"),df);*/
 
         boolean isDone = Boolean.valueOf(request.getParameter("isDone"));
-        Task newTask = new Task(title, username, description, LocalDate.now(), isDone);
+        Task newTask = new Task(title, description, username, LocalDate.now(), isDone);
         taskDAO.insert(newTask);
         response.sendRedirect("list");
     }
 
     private void updateTask(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start insertTask from updateTask");
+        System.out.println("start updateTask from TaskController");
         int id = Integer.parseInt(request.getParameter("id"));
 
         String title = request.getParameter("title");
-        String username = request.getParameter("username");
+       // String username = request.getParameter("username");
+        User user = (User) request.getSession(false).getAttribute("user");
+        String username = user.getUsername();
         String description = request.getParameter("description");
         //DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-mm-dd");
         LocalDate taskDate = LocalDate.parse(request.getParameter("taskDate"));
 
         boolean isDone = Boolean.valueOf(request.getParameter("isDone"));
-        Task updateTask = new Task((long)id, title, username, description, taskDate, isDone);
+        Task updateTask = new Task((long)id, title,description, username,  taskDate, isDone);
 
         taskDAO.update(updateTask);
 
