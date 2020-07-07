@@ -13,12 +13,13 @@ import java.util.List;
 
 public class TaskDao implements Dao {
     private static final String INSERT_TASK_SQL = "INSERT INTO tasks"
-            + "  (title, username, description, task_date,  is_done) VALUES " + " (?, ?, ?, ?, ?);";
-
-    private static final String SELECT_TASK_BY_ID = "select t_id,title,username,description,task_date,is_done from tasks where id =?";
+            + "  (title, description, username, task_date,  is_done) VALUES " + " (?, ?, ?, ?, ?);";
+    private static final String SELECT_TASK_BY_ID = "select t_id,title,description,username,task_date,is_done "
+            + "from tasks where t_id =?";
     private static final String SELECT_ALL_TASKS = "select * from tasks";
+    private static final String UPDATE_TASK = "update tasks set title = ?, description =?, username= ?, task_date =?,"
+            + " is_done = ? where t_id = ?;";
     private static final String DELETE_TASK_BY_ID = "delete from tasks where t_id = ?;";
-    private static final String UPDATE_TASK = "update tasks set title = ?, username= ?, description =?, task_date =?, is_done = ? where t_id = ?;";
 
     public TaskDao() {
     }
@@ -30,8 +31,8 @@ public class TaskDao implements Dao {
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TASK_SQL)) {
             preparedStatement.setString(1, task.getTitle());
-            preparedStatement.setString(2, task.getUsername());
-            preparedStatement.setString(3, task.getDescription());
+            preparedStatement.setString(2, task.getDescription());
+            preparedStatement.setString(3, task.getUsername());
             preparedStatement.setDate(4, JDBCUtils.getSQLDate(task.getTaskDate()));
             preparedStatement.setBoolean(5, task.getStatus());
             System.out.println(preparedStatement);
@@ -53,8 +54,8 @@ public class TaskDao implements Dao {
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_TASK);) {
             statement.setString(1, task.getTitle());
-            statement.setString(2, task.getUsername());
-            statement.setString(3, task.getDescription());
+            statement.setString(2, task.getDescription());
+            statement.setString(3, task.getUsername());
             statement.setDate(4, JDBCUtils.getSQLDate(task.getTaskDate()));
             statement.setBoolean(5, task.getStatus());
             statement.setLong(6, task.getId());
@@ -75,11 +76,11 @@ public class TaskDao implements Dao {
             while (rs.next()) {
                 long id = rs.getLong("t_id");
                 String title = rs.getString("title");
-                String username = rs.getString("username");
                 String description = rs.getString("description");
-                LocalDate targetDate = rs.getDate("task_date").toLocalDate();
+                String username = rs.getString("username");
+                LocalDate taskDate = rs.getDate("task_date").toLocalDate();
                 boolean isDone = rs.getBoolean("is_done");
-                task = new Task(id, title, username, description, targetDate, isDone);
+                task = new Task(id, title, description,username,  taskDate, isDone);
             }
         } catch (SQLException exception) {
             JDBCUtils.printSQLException(exception);
@@ -106,7 +107,7 @@ public class TaskDao implements Dao {
                 String description = rs.getString("description");
                 LocalDate targetDate = rs.getDate("task_date").toLocalDate();
                 boolean isDone = rs.getBoolean("is_done");
-                tasks.add(new Task(id, title, username, description, targetDate, isDone));
+                tasks.add(new Task(id, title, description, username, targetDate, isDone));
             }
         } catch (SQLException exception) {
             JDBCUtils.printSQLException(exception);
@@ -124,6 +125,4 @@ public class TaskDao implements Dao {
         }
         return rowDeleted;
     }
-
-
 }
