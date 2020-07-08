@@ -116,11 +116,11 @@ public class TaskDao implements Dao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
+    public boolean delete(long id) throws SQLException {
         boolean rowDeleted;
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement statement = connection.prepareStatement(DELETE_TASK_BY_ID);) {
-            statement.setInt(1, id);
+            statement.setLong(1, id);
             rowDeleted = statement.executeUpdate() > 0;
         }
         return rowDeleted;
