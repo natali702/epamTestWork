@@ -14,6 +14,7 @@ public class Task {
     private String username;
     private LocalDate taskDate;
     private boolean status;
+    private Goal goal;
 
     public Task(Long id, String title, String description, String username, LocalDate taskDate, boolean status) {
         this.id = id;
