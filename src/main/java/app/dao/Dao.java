@@ -22,7 +22,7 @@ public interface Dao<T> {
 
     List<T> selectAll();
 
-    boolean delete(int id) throws SQLException;
+    boolean delete(long id) throws SQLException;
 
     boolean update(T t) throws SQLException;
 
