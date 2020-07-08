@@ -25,8 +25,16 @@
          style="background-color: tomato">
 
         <ul class="navbar-nav">
-            <li><a href="<%=request.getContextPath()%>/list"
+            <li><a href="<%=request.getContextPath()%>/task/list"
                    class="nav-link">Tasks</a></li>
+        </ul>
+        <ul class="navbar-nav">
+            <li><a href="<%=request.getContextPath()%>/goal/list"
+                   class="nav-link">Goals</a></li>
+        </ul>
+        <ul class="navbar-nav">
+            <li><a href="<%=request.getContextPath()%>/getTaskById"
+                   class="nav-link">Get task</a></li>
         </ul>
 
         <ul class="navbar-nav navbar-collapse justify-content-end">
@@ -44,7 +52,7 @@
         <hr>
         <div class="container text-left">
 
-            <a href="<%=request.getContextPath()%>/new"
+            <a href="<%=request.getContextPath()%>/task/new"
                class="btn btn-success">Add Task</a>
         </div>
         <br>
