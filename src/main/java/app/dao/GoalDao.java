@@ -14,7 +14,7 @@ public class GoalDao implements Dao {
 
     private static final String INSERT_GOAL_SQL = "INSERT INTO goals"
             + "  (title, parent) VALUES " + " (?, ?);";
-    private static final String SELECT_GOAl_BY_ID = "select g_id,title,parent from goals where g_id =?";
+    private static final String SELECT_GOAl_BY_ID = "select g_id, title, parent from goals where g_id =?";
     private static final String SELECT_ALL_GOALS = "select * from goals";
     private static final String UPDATE_GOAL = "update goals set title = ?, parent =? where g_id = ?;";
     private static final String DELETE_GOAL_BY_ID = "delete from goals where g_id = ?;";
@@ -35,7 +35,7 @@ public class GoalDao implements Dao {
     }
 
     @Override
-    public Object select(long goalId) {
+    public Goal select(long goalId) {
         Goal goal = null;
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_GOAl_BY_ID);) {
@@ -46,8 +46,6 @@ public class GoalDao implements Dao {
             while (rs.next()) {
                 long id = rs.getLong("g_id");
                 String title = rs.getString("title");
-                String description = rs.getString("description");
-                String username = rs.getString("username");
                 long parentId = rs.getLong("parent");
                 goal = new Goal(id, title, parentId);
             }
@@ -58,7 +56,7 @@ public class GoalDao implements Dao {
     }
 
     @Override
-    public List selectAll() {
+    public List<Goal> selectAll() {
         List<Goal> goals = new ArrayList<>();
 
         try (Connection connection = JDBCUtils.getConnection();
@@ -80,7 +78,7 @@ public class GoalDao implements Dao {
     }
 
     @Override
-    public boolean delete(int id) throws SQLException {
+    public boolean delete(long id) throws SQLException {
         boolean rowDeleted;
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement statement = connection.prepareStatement(DELETE_GOAL_BY_ID);) {
