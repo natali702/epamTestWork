@@ -24,19 +24,15 @@ public class GoalController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("doPost from GoalController");
         doGet(request, response);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("start doGet from GoalController");
         String action = request.getPathInfo();
-        boolean hasImage = action.startsWith("/images");
-
         HttpSession session = request.getSession(false);
         try {
-            if (session != null && !hasImage) {
+            if (session != null) {
                 switch (action) {
                     case "/new":
                         showNewForm(request, response);
@@ -56,9 +52,9 @@ public class GoalController extends HttpServlet {
                     case "/list":
                         listGoal(request, response);
                         break;
-//                    case "/logout":
-//                        request.getRequestDispatcher("/logout").forward(request, response);
-//                        break;
+                    case "/logout":
+                        request.getRequestDispatcher("/logout").forward(request, response);
+                        break;
                     default:
                         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/login.jsp");
                         dispatcher.forward(request, response);
@@ -71,8 +67,7 @@ public class GoalController extends HttpServlet {
     }
 
     private void listGoal(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException, ServletException {
-        System.out.println("start listGoal from GoalController");
+            throws IOException, ServletException {
         List<Goal> listGoal = goalDao.selectAll();
         request.setAttribute("listGoal", listGoal);
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_list.jsp");
@@ -81,33 +76,34 @@ public class GoalController extends HttpServlet {
 
     private void showNewForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("start showNewForm from GoalController");
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_form.jsp");
         dispatcher.forward(request, response);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, ServletException, IOException {
-        System.out.println("start showEditForm from GoalController");
+            throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         Goal existingGoal = goalDao.select(id);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_form.jsp");
         request.setAttribute("goal", existingGoal);
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_form.jsp");
         dispatcher.forward(request, response);
 
     }
 
     private void insertGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start insertGoal from GoalController");
         String title = request.getParameter("title");
-        long parentId = Long.valueOf(request.getParameter("parent"));
-        Goal newGoal = new Goal(title, parentId);
+        String parent = request.getParameter("parent");
+        Goal newGoal;
+        if (!parent.equals("")) {
+            newGoal = new Goal(title, Long.valueOf(parent));
+        } else {
+            newGoal = new Goal(title);
+        }
         goalDao.insert(newGoal);
         response.sendRedirect("list");
     }
 
     private void updateGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start updateGoal from GoalController");
         long id = Long.parseLong(request.getParameter("id"));
         String title = request.getParameter("title");
         String parent = request.getParameter("parent");
@@ -123,7 +119,6 @@ public class GoalController extends HttpServlet {
     }
 
     private void deleteGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start deleteGoal from GoalController");
         long id = Long.parseLong(request.getParameter("id"));
         goalDao.delete(id);
         response.sendRedirect("list");
