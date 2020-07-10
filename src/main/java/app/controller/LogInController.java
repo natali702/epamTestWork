@@ -51,7 +51,8 @@ public class LogInController extends HttpServlet {
 
                 authService.setUserData(username, password);
 
-                RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/views/task_list.jsp");
+               RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/views/task_list.jsp");
+               // RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/views/main_page.jsp");
                 dispatcher.forward(request, response);
             } else {
 
