@@ -16,7 +16,8 @@ public class GoalDao implements Dao {
             + "  (title, parent) VALUES " + " (?, ?);";
     private static final String SELECT_GOAl_BY_ID = "select g_id, title, parent from goals where g_id =?";
     private static final String SELECT_ALL_GOALS = "select * from goals";
-    private static final String UPDATE_GOAL = "update goals set title = ?, parent =? where g_id = ?;";
+    //private static final String UPDATE_GOAL = "update goals set title = ?, parent =? where g_id = ?;";
+    private static final String UPDATE_GOAL = "update goals set title = ? where g_id = ?;";
     private static final String DELETE_GOAL_BY_ID = "delete from goals where g_id = ?;";
 
     @Override
@@ -47,7 +48,12 @@ public class GoalDao implements Dao {
                 long id = rs.getLong("g_id");
                 String title = rs.getString("title");
                 long parentId = rs.getLong("parent");
-                goal = new Goal(id, title, parentId);
+                if (parentId != 0) {
+                    Goal parent = select(parentId);
+                    goal = new Goal(id, title, parentId, parent);
+                } else {
+                    goal = new Goal(id, title, parentId);
+                }
             }
         } catch (SQLException exception) {
             JDBCUtils.printSQLException(exception);
@@ -68,8 +74,13 @@ public class GoalDao implements Dao {
             while (rs.next()) {
                 long id = rs.getLong("g_id");
                 String title = rs.getString("title");
-                long parent = rs.getLong("parent");
-                goals.add(new Goal(id, title, parent));
+                long parentId = rs.getLong("parent");
+                if (parentId != 0) {
+                    Goal parent = select(parentId);
+                    goals.add(new Goal(id, title, parentId, parent));
+                } else {
+                    goals.add(new Goal(id, title, parentId));
+                }
             }
         } catch (SQLException exception) {
             JDBCUtils.printSQLException(exception);
@@ -95,7 +106,9 @@ public class GoalDao implements Dao {
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_GOAL);) {
             statement.setString(1, goal.getTitle());
-            statement.setLong(2, goal.getParentId());
+            // statement.setLong(2, goal.getParentId());
+            // statement.setLong(3, goal.getId());
+            statement.setLong(2, goal.getId());
             rowUpdated = statement.executeUpdate() > 0;
         }
         return rowUpdated;
