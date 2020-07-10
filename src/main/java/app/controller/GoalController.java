@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+
 @WebServlet("/goal/*")
 public class GoalController extends HttpServlet {
     private GoalDao goalDao;
@@ -35,7 +36,7 @@ public class GoalController extends HttpServlet {
 
         HttpSession session = request.getSession(false);
         try {
-            if(session != null && !hasImage) {
+            if (session != null && !hasImage) {
                 switch (action) {
                     case "/new":
                         showNewForm(request, response);
@@ -109,8 +110,14 @@ public class GoalController extends HttpServlet {
         System.out.println("start updateGoal from GoalController");
         long id = Long.parseLong(request.getParameter("id"));
         String title = request.getParameter("title");
-        long parentId = Long.valueOf(request.getParameter("parent"));
-        Goal updateGoal = new Goal(id, title, parentId);
+        String parent = request.getParameter("parent");
+        long parentId = Long.parseLong(parent);
+        Goal updateGoal;
+        if (parentId != 0) {
+            updateGoal = new Goal(id, title, parentId);
+        } else {
+            updateGoal = new Goal(id, title);
+        }
         goalDao.update(updateGoal);
         response.sendRedirect("list");
     }
