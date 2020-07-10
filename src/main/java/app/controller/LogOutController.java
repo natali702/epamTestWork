@@ -12,12 +12,10 @@ import java.io.IOException;
 public class LogOutController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println("doDet LogOutController");
         final HttpSession session = req.getSession();
         session.removeAttribute("password");
         session.removeAttribute("username");
         session.removeAttribute("user");
         req.getRequestDispatcher("WEB-INF/views/login.jsp").forward(req, resp);
-
     }
 }
