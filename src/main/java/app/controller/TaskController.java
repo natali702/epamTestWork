@@ -3,10 +3,8 @@ package app.controller;
 import app.dao.TaskDao;
 import app.model.Task;
 import app.model.User;
-import app.services.Authentication;
 
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,6 +15,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+
 @WebServlet("/task/*")
 public class TaskController extends HttpServlet {
     private TaskDao taskDAO;
@@ -27,19 +26,15 @@ public class TaskController extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("doPost from TaskController");
         doGet(request, response);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("start doGet from TaskController");
         String action = request.getPathInfo();
-        boolean hasImage = action.startsWith("/images");
-
         HttpSession session = request.getSession(false);
         try {
-            if(session != null && !hasImage) {
+            if (session != null) {
                 switch (action) {
                     case "/new":
                         showNewForm(request, response);
@@ -57,7 +52,13 @@ public class TaskController extends HttpServlet {
                         updateTask(request, response);
                         break;
                     case "/list":
-                        listTask(request, response);
+                        showTaskList(request, response);
+                        break;
+                    case "/all":
+                        showAllPage(request, response);
+                        break;
+                    case "/get":
+                        showGetPage(request, response);
                         break;
                     case "/logout":
                         request.getRequestDispatcher("/logout").forward(request, response);
@@ -73,25 +74,28 @@ public class TaskController extends HttpServlet {
         }
     }
 
-    private void listTask(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException, ServletException {
-        System.out.println("start listTask from TaskController");
-        List<Task> listTask = taskDAO.selectAll();
-        request.setAttribute("listTask", listTask);
+    private void showTaskList(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+        setAttributeList(request);
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_list.jsp");
         dispatcher.forward(request, response);
     }
 
     private void showNewForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("start showNewForm from TaskController");
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_form.jsp");
         dispatcher.forward(request, response);
     }
 
+    private void showAllPage(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        setAttributeList(request);
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/all_page.jsp");
+        dispatcher.forward(request, response);
+    }
+
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, ServletException, IOException {
-        System.out.println("start showEditForm from TaskController");
+            throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         Task existingTask = taskDAO.select(id);
         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_form.jsp");
@@ -100,47 +104,57 @@ public class TaskController extends HttpServlet {
 
     }
 
+    private void showGetPage(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        long id = Long.parseLong(request.getParameter("id"));
+        Task existingTask = taskDAO.select(id);
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_get.jsp");
+        request.setAttribute("task", existingTask);
+        dispatcher.forward(request, response);
+
+    }
+
     private void insertTask(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start insertTask from TaskController");
         String title = request.getParameter("title");
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
-//        String username = request.getParameter("username");
         String username = user.getUsername();
         String description = request.getParameter("description");
-
-		/*DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-mm-dd");
-		LocalDate targetDate = LocalDate.parse(request.getParameter("targetDate"),df);*/
-
         boolean isDone = Boolean.valueOf(request.getParameter("isDone"));
-        Task newTask = new Task(title, description, username, LocalDate.now(), isDone);
+        String goalId = request.getParameter("goal_id");
+        Task newTask;
+        if (!goalId.equals("")) {
+            newTask = new Task(title, description, username, LocalDate.now(), isDone, Long.parseLong(goalId));
+        } else {
+            newTask = new Task(title, description, username, LocalDate.now(), isDone);
+        }
         taskDAO.insert(newTask);
         response.sendRedirect("list");
     }
 
     private void updateTask(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start updateTask from TaskController");
         long id = Long.parseLong(request.getParameter("id"));
         String title = request.getParameter("title");
-       // String username = request.getParameter("username");
         User user = (User) request.getSession(false).getAttribute("user");
         String username = user.getUsername();
         String description = request.getParameter("description");
-        //DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-mm-dd");
         LocalDate taskDate = LocalDate.parse(request.getParameter("taskDate"));
-
         boolean isDone = Boolean.valueOf(request.getParameter("isDone"));
-        Task updateTask = new Task(id, title,description, username,  taskDate, isDone);
-
+        Task updateTask = new Task(id, title, description, username, taskDate, isDone);
         taskDAO.update(updateTask);
-
         response.sendRedirect("list");
     }
 
     private void deleteTask(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
-        System.out.println("start deleteTask from updateTask");
         long id = Long.parseLong(request.getParameter("id"));
         taskDAO.delete(id);
         response.sendRedirect("list");
+    }
+
+    private void setAttributeList(HttpServletRequest request) {
+        User user = (User) request.getSession(false).getAttribute("user");
+        String name = user.getUsername();
+        List<Task> listTask = taskDAO.selectAllByUsername(name);
+        request.setAttribute("listTask", listTask);
     }
 }
