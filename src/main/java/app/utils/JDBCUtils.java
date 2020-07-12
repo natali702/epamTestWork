@@ -4,7 +4,6 @@ import java.sql.*;
 import java.time.LocalDate;
 
 public class JDBCUtils {
-
     private final static String jdbcURL = "jdbc:postgresql://localhost:5434/java_ee_db";
     private final static String jdbcUsername = "postgres";
     private final static String jdbcPassword = "admin";

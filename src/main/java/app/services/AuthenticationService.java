@@ -1,17 +1,12 @@
 package app.services;
 
-import lombok.Data;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-@Data
 public class AuthenticationService implements Authentication {
-
     private Map<String, String> userProfileData = new ConcurrentHashMap<>();
-
 
     @Override
     public boolean isUserPresent(String username) {

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-//@SuppressWarnings("ALL")
+@SuppressWarnings("ALL")
 public class TaskDao implements Dao {
 
     // region SQL_COMMANDS
@@ -38,9 +38,6 @@ public class TaskDao implements Dao {
 
     private static final String DELETE_TASK_BY_ID = "DELETE FROM tasks WHERE t_id = ?;";
     // endregion
-
-    public TaskDao() {
-    }
 
     @Override
     public void insert(Object o) throws SQLException {

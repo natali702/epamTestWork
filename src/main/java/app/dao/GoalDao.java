@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class GoalDao implements Dao {
 
     //region SQL_COMMANDS
@@ -71,7 +72,6 @@ public class GoalDao implements Dao {
     @Override
     public List<Goal> selectAll() {
         List<Goal> goals = new ArrayList<>();
-
         try (Connection connection = JDBCUtils.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_GOALS)) {
             ResultSet rs = preparedStatement.executeQuery();
