@@ -12,26 +12,35 @@ import java.util.List;
 
 public class GoalDao implements Dao {
 
-    private static final String INSERT_GOAL_SQL = "INSERT INTO goals"
+    //region SQL_COMMANDS
+    private static final String INSERT_SUBGOAL_SQL = "INSERT INTO goals"
             + "  (title, parent) VALUES " + " (?, ?);";
-    private static final String SELECT_GOAl_BY_ID = "select g_id, title, parent from goals where g_id =?";
-    private static final String SELECT_ALL_GOALS = "select * from goals";
-    //private static final String UPDATE_GOAL = "update goals set title = ?, parent =? where g_id = ?;";
-    private static final String UPDATE_GOAL = "update goals set title = ? where g_id = ?;";
-    private static final String DELETE_GOAL_BY_ID = "delete from goals where g_id = ?;";
+
+    private static final String INSERT_GOAL_SQL = "INSERT INTO goals"
+            + "  (title) VALUES " + " (?);";
+
+    private static final String SELECT_GOAl_BY_ID = "SELECT g_id, title, parent FROM goals WHERE g_id =?";
+    private static final String SELECT_ALL_GOALS = "SELECT * FROM goals";
+    private static final String UPDATE_GOAL = "UPDATE goals SET title = ? WHERE g_id = ?;";
+    private static final String DELETE_GOAL_BY_ID = "DELETE FROM goals WHERE g_id = ?;";
+    // endregion
 
     @Override
     public void insert(Object o) throws SQLException {
         Goal goal = (Goal) o;
-        System.out.println(INSERT_GOAL_SQL);
-        try (Connection connection = JDBCUtils.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_GOAL_SQL)) {
-            preparedStatement.setString(1, goal.getTitle());
-            preparedStatement.setLong(2, goal.getParentId());
-            System.out.println(preparedStatement);
-            preparedStatement.executeUpdate();
+        try (Connection connection = JDBCUtils.getConnection()) {
+            PreparedStatement statement;
+            if (goal.getParentId() != 0) {
+                statement = connection.prepareStatement(INSERT_SUBGOAL_SQL);
+                statement.setLong(2, goal.getParentId());
+            } else {
+                statement = connection.prepareStatement(INSERT_GOAL_SQL);
+            }
+            statement.setString(1, goal.getTitle());
+            statement.executeUpdate();
         } catch (SQLException exception) {
             JDBCUtils.printSQLException(exception);
+            throw exception;
         }
     }
 
@@ -39,11 +48,9 @@ public class GoalDao implements Dao {
     public Goal select(long goalId) {
         Goal goal = null;
         try (Connection connection = JDBCUtils.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_GOAl_BY_ID);) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_GOAl_BY_ID)) {
             preparedStatement.setLong(1, goalId);
-            System.out.println(preparedStatement);
             ResultSet rs = preparedStatement.executeQuery();
-
             while (rs.next()) {
                 long id = rs.getLong("g_id");
                 String title = rs.getString("title");
@@ -66,11 +73,8 @@ public class GoalDao implements Dao {
         List<Goal> goals = new ArrayList<>();
 
         try (Connection connection = JDBCUtils.getConnection();
-
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_GOALS);) {
-            System.out.println(preparedStatement);
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_GOALS)) {
             ResultSet rs = preparedStatement.executeQuery();
-
             while (rs.next()) {
                 long id = rs.getLong("g_id");
                 String title = rs.getString("title");
@@ -104,10 +108,8 @@ public class GoalDao implements Dao {
         Goal goal = (Goal) o;
         boolean rowUpdated;
         try (Connection connection = JDBCUtils.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_GOAL);) {
+             PreparedStatement statement = connection.prepareStatement(UPDATE_GOAL)) {
             statement.setString(1, goal.getTitle());
-            // statement.setLong(2, goal.getParentId());
-            // statement.setLong(3, goal.getId());
             statement.setLong(2, goal.getId());
             rowUpdated = statement.executeUpdate() > 0;
         }

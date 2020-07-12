@@ -2,15 +2,14 @@ package app.controller;
 
 import app.dao.GoalDao;
 import app.model.Goal;
-import app.utils.JspPath;
+import app.utils.ControllerUtils;
+import app.utils.JspPathUtils;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -31,11 +30,10 @@ public class GoalController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getPathInfo();
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            showPage(request, response, JspPath.LOGIN_PAGE);
+        if (!ControllerUtils.CheckUserSession(request, response)){
+            return;
         }
+        String action = request.getPathInfo();
         try {
             switch (action) {
                 case "/insert":
@@ -57,10 +55,10 @@ public class GoalController extends HttpServlet {
                     request.getRequestDispatcher("/logout").forward(request, response);
                     break;
                 case "/new":
-                    showPage(request, response, JspPath.GOAL_FORM);
+                    ControllerUtils.showPage(request,response,JspPathUtils.GOAL_FORM);
                     break;
                 default:
-                    showPage(request, response, JspPath.LOGIN_PAGE);
+                    ControllerUtils.showPage(request, response, JspPathUtils.LOGIN_PAGE);
                     break;
             }
         } catch (Exception ex) {
@@ -68,16 +66,11 @@ public class GoalController extends HttpServlet {
         }
     }
 
-    private void showPage(HttpServletRequest request, HttpServletResponse response, String path) throws ServletException, IOException {
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(path);
-        dispatcher.forward(request, response);
-    }
-
     private void listGoal(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         List<Goal> listGoal = goalDao.selectAll();
         request.setAttribute("listGoal", listGoal);
-        showPage(request, response, JspPath.GOAL_LIST);
+        ControllerUtils.showPage(request, response, JspPathUtils.GOAL_LIST);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
@@ -85,27 +78,23 @@ public class GoalController extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         Goal existingGoal = goalDao.select(id);
         request.setAttribute("goal", existingGoal);
-        showPage(request, response, JspPath.GOAL_FORM);
+        ControllerUtils.showPage(request, response, JspPathUtils.GOAL_FORM);
     }
 
     private void insertGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String title = request.getParameter("title");
         String parent = request.getParameter("parent");
-        long parentId = ParseStringToLong(parent);
+        long parentId = ControllerUtils.ParseStringToLong(parent);
         Goal newGoal = new Goal(title, parentId);
         goalDao.insert(newGoal);
         response.sendRedirect("list");
-    }
-
-    private long ParseStringToLong(String line) {
-        return line.equals("") ? 0 : Long.valueOf(line);
     }
 
     private void updateGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         long id = Long.parseLong(request.getParameter("id"));
         String title = request.getParameter("title");
         String parent = request.getParameter("parent");
-        long parentId = ParseStringToLong(parent);
+        long parentId = ControllerUtils.ParseStringToLong(parent);
         Goal updateGoal = new Goal(id, title, parentId);
         goalDao.update(updateGoal);
         response.sendRedirect("list");

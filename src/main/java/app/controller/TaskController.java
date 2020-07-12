@@ -3,8 +3,9 @@ package app.controller;
 import app.dao.TaskDao;
 import app.model.Task;
 import app.model.User;
+import app.utils.ControllerUtils;
+import app.utils.JspPathUtils;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,13 +32,14 @@ public class TaskController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (!ControllerUtils.CheckUserSession(request, response)){
+            return;
+        }
         String action = request.getPathInfo();
-        HttpSession session = request.getSession(false);
         try {
-            if (session != null) {
                 switch (action) {
                     case "/new":
-                        showNewForm(request, response);
+                        ControllerUtils.showPage(request, response, JspPathUtils.TASK_FORM);
                         break;
                     case "/insert":
                         insertTask(request, response);
@@ -64,11 +66,9 @@ public class TaskController extends HttpServlet {
                         request.getRequestDispatcher("/logout").forward(request, response);
                         break;
                     default:
-                        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/login.jsp");
-                        dispatcher.forward(request, response);
+                        ControllerUtils.showPage(request, response, JspPathUtils.LOGIN_PAGE);
                         break;
                 }
-            }
         } catch (SQLException ex) {
             throw new ServletException(ex);
         }
@@ -77,41 +77,29 @@ public class TaskController extends HttpServlet {
     private void showTaskList(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         setAttributeList(request);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_list.jsp");
-        dispatcher.forward(request, response);
-    }
-
-    private void showNewForm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_form.jsp");
-        dispatcher.forward(request, response);
+        ControllerUtils.showPage(request, response, JspPathUtils.TASK_LIST);
     }
 
     private void showAllPage(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         setAttributeList(request);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/all_page.jsp");
-        dispatcher.forward(request, response);
+        ControllerUtils.showPage(request, response, JspPathUtils.ALL_PAGE);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int id = Integer.parseInt(request.getParameter("id"));
         Task existingTask = taskDAO.select(id);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_form.jsp");
         request.setAttribute("task", existingTask);
-        dispatcher.forward(request, response);
-
+        ControllerUtils.showPage(request, response, JspPathUtils.TASK_FORM);
     }
 
     private void showGetPage(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         long id = Long.parseLong(request.getParameter("id"));
         Task existingTask = taskDAO.select(id);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/task_get.jsp");
         request.setAttribute("task", existingTask);
-        dispatcher.forward(request, response);
-
+        ControllerUtils.showPage(request, response, JspPathUtils.TASK_GET);
     }
 
     private void insertTask(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
@@ -121,13 +109,9 @@ public class TaskController extends HttpServlet {
         String username = user.getUsername();
         String description = request.getParameter("description");
         boolean isDone = Boolean.valueOf(request.getParameter("isDone"));
-        String goalId = request.getParameter("goal_id");
-        Task newTask;
-        if (!goalId.equals("")) {
-            newTask = new Task(title, description, username, LocalDate.now(), isDone, Long.parseLong(goalId));
-        } else {
-            newTask = new Task(title, description, username, LocalDate.now(), isDone);
-        }
+        String goal = request.getParameter("goal_id");
+        long goalId = ControllerUtils.ParseStringToLong(goal);
+        Task newTask = new Task(title, description, username, LocalDate.now(), isDone, goalId);
         taskDAO.insert(newTask);
         response.sendRedirect("list");
     }

@@ -1,5 +1,7 @@
 package app.controller;
 
+import app.utils.JspPathUtils;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +18,6 @@ public class LogOutController extends HttpServlet {
         session.removeAttribute("password");
         session.removeAttribute("username");
         session.removeAttribute("user");
-        req.getRequestDispatcher("WEB-INF/views/login.jsp").forward(req, resp);
+        req.getRequestDispatcher(JspPathUtils.LOGIN_PAGE).forward(req, resp);
     }
 }

@@ -3,8 +3,10 @@ package app.controller;
 import app.dao.UserDao;
 import app.model.User;
 import app.services.Authentication;
+import app.utils.ControllerUtils;
+import app.utils.JspPathUtils;
 
-import javax.servlet.RequestDispatcher;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,17 +17,18 @@ import java.io.IOException;
 
 @WebServlet("/login")
 public class LogInController extends HttpServlet {
+
     private Authentication authService;
     private UserDao userDao;
 
     public void init() {
-        userDao = new UserDao();
+        this.userDao = new UserDao();
         this.authService = (Authentication) getServletContext().getAttribute("authService");
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.sendRedirect("WEB-INF/views/login.jsp");
+        resp.sendRedirect(JspPathUtils.LOGIN_PAGE);
     }
 
     @Override
@@ -33,7 +36,8 @@ public class LogInController extends HttpServlet {
         authenticate(req, resp);
     }
 
-    private void authenticate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private void authenticate(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         User user = new User();
@@ -44,14 +48,13 @@ public class LogInController extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("user", user);
                 authService.setUserData(username, password);
-                RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/views/task_list.jsp");
-                dispatcher.forward(request, response);
+                ControllerUtils.showPage(request, response, JspPathUtils.TASK_LIST);
             } else {
-                RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/views/login.jsp");
-                dispatcher.forward(request, response);
+                ControllerUtils.showPage(request, response, JspPathUtils.LOGIN_PAGE);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+            throw new ServletException();
         }
     }
 }

@@ -1,12 +1,7 @@
 package app.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.time.LocalDate;
 
-//@JsonPropertyOrder({"id", "title", "description"})
-@Data
 public class Task {
     private Long id;
     private String title;
@@ -14,6 +9,7 @@ public class Task {
     private String username;
     private LocalDate taskDate;
     private boolean status;
+    private long goalId;
     private Goal goal;
 
     public Task(Long id, String title, String description, String username, LocalDate taskDate, boolean status) {
@@ -31,6 +27,36 @@ public class Task {
         this.username = username;
         this.taskDate = taskDate;
         this.status = status;
+    }
+
+    public Task(Long id, String title, String description, String username, LocalDate taskDate, boolean status, long goalId) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.username = username;
+        this.taskDate = taskDate;
+        this.status = status;
+        this.goalId = goalId;
+    }
+
+    public Task(Long id, String title, String description, String username, LocalDate taskDate, boolean status, long goalId, Goal goal) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.username = username;
+        this.taskDate = taskDate;
+        this.status = status;
+        this.goalId = goalId;
+        this.goal = goal;
+    }
+
+    public Task(String title, String description, String username, LocalDate taskDate, boolean status, long goalId) {
+        this.title = title;
+        this.description = description;
+        this.username = username;
+        this.taskDate = taskDate;
+        this.status = status;
+        this.goalId = goalId;
     }
 
     protected Task() {
@@ -76,12 +102,28 @@ public class Task {
         this.taskDate = taskDate;
     }
 
-    public boolean getStatus() {
+    public boolean isStatus() {
         return status;
     }
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public long getGoalId() {
+        return goalId;
+    }
+
+    public void setGoalId(long goalId) {
+        this.goalId = goalId;
+    }
+
+    public Goal getGoal() {
+        return goal;
+    }
+
+    public void setGoal(Goal goal) {
+        this.goal = goal;
     }
 
     @Override
@@ -94,15 +136,17 @@ public class Task {
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj)
             return true;
+
         if (obj == null)
             return false;
+
         if (getClass() != obj.getClass())
             return false;
+
         Task other = (Task) obj;
-        if (id != other.id)
-            return false;
-        return true;
+        return id.equals(other.id);
     }
 }

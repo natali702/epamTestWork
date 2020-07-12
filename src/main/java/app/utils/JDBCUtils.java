@@ -1,23 +1,20 @@
 package app.utils;
 
-import java.io.PrintWriter;
 import java.sql.*;
 import java.time.LocalDate;
 
 public class JDBCUtils {
 
-    private static String jdbcURL = "jdbc:postgresql://localhost:5434/java_ee_db";
-    private static String jdbcUsername = "postgres";
-    private static String jdbcPassword = "admin";
+    private final static String jdbcURL = "jdbc:postgresql://localhost:5434/java_ee_db";
+    private final static String jdbcUsername = "postgres";
+    private final static String jdbcPassword = "admin";
 
     public static Connection getConnection() {
         Connection connection = null;
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return connection;
@@ -43,7 +40,4 @@ public class JDBCUtils {
         return java.sql.Date.valueOf(date);
     }
 
-    public static LocalDate getUtilDate(Date sqlDate) {
-        return sqlDate.toLocalDate();
-    }
 }
