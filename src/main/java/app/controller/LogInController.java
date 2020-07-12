@@ -6,7 +6,6 @@ import app.services.Authentication;
 import app.utils.ControllerUtils;
 import app.utils.JspPathUtils;
 
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
