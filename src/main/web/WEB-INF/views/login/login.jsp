@@ -1,10 +1,3 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: lexse
-  Date: 06.07.2020
-  Time: 10:44
-  To change this template use File | Settings | File Templates.
---%>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
