@@ -2,6 +2,7 @@ package app.controller;
 
 import app.dao.GoalDao;
 import app.model.Goal;
+import app.utils.JspPath;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @WebServlet("/goal/*")
 public class GoalController extends HttpServlet {
+
     private GoalDao goalDao;
 
     public void init() {
@@ -31,53 +33,51 @@ public class GoalController extends HttpServlet {
             throws ServletException, IOException {
         String action = request.getPathInfo();
         HttpSession session = request.getSession(false);
+        if (session == null) {
+            showPage(request, response, JspPath.LOGIN_PAGE);
+        }
         try {
-            if (session != null) {
-                switch (action) {
-                    case "/new":
-                        showNewForm(request, response);
-                        break;
-                    case "/insert":
-                        insertGoal(request, response);
-                        break;
-                    case "/delete":
-                        deleteGoal(request, response);
-                        break;
-                    case "/edit":
-                        showEditForm(request, response);
-                        break;
-                    case "/update":
-                        updateGoal(request, response);
-                        break;
-                    case "/list":
-                        listGoal(request, response);
-                        break;
-                    case "/logout":
-                        request.getRequestDispatcher("/logout").forward(request, response);
-                        break;
-                    default:
-                        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/login.jsp");
-                        dispatcher.forward(request, response);
-                        break;
-                }
+            switch (action) {
+                case "/insert":
+                    insertGoal(request, response);
+                    break;
+                case "/delete":
+                    deleteGoal(request, response);
+                    break;
+                case "/edit":
+                    showEditForm(request, response);
+                    break;
+                case "/update":
+                    updateGoal(request, response);
+                    break;
+                case "/list":
+                    listGoal(request, response);
+                    break;
+                case "/logout":
+                    request.getRequestDispatcher("/logout").forward(request, response);
+                    break;
+                case "/new":
+                    showPage(request, response, JspPath.GOAL_FORM);
+                    break;
+                default:
+                    showPage(request, response, JspPath.LOGIN_PAGE);
+                    break;
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServletException(ex);
         }
+    }
+
+    private void showPage(HttpServletRequest request, HttpServletResponse response, String path) throws ServletException, IOException {
+        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(path);
+        dispatcher.forward(request, response);
     }
 
     private void listGoal(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         List<Goal> listGoal = goalDao.selectAll();
         request.setAttribute("listGoal", listGoal);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_list.jsp");
-        dispatcher.forward(request, response);
-    }
-
-    private void showNewForm(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_form.jsp");
-        dispatcher.forward(request, response);
+        showPage(request, response, JspPath.GOAL_LIST);
     }
 
     private void showEditForm(HttpServletRequest request, HttpServletResponse response)
@@ -85,35 +85,28 @@ public class GoalController extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         Goal existingGoal = goalDao.select(id);
         request.setAttribute("goal", existingGoal);
-        RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/WEB-INF/views/goal_form.jsp");
-        dispatcher.forward(request, response);
-
+        showPage(request, response, JspPath.GOAL_FORM);
     }
 
     private void insertGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         String title = request.getParameter("title");
         String parent = request.getParameter("parent");
-        Goal newGoal;
-        if (!parent.equals("")) {
-            newGoal = new Goal(title, Long.valueOf(parent));
-        } else {
-            newGoal = new Goal(title);
-        }
+        long parentId = ParseStringToLong(parent);
+        Goal newGoal = new Goal(title, parentId);
         goalDao.insert(newGoal);
         response.sendRedirect("list");
+    }
+
+    private long ParseStringToLong(String line) {
+        return line.equals("") ? 0 : Long.valueOf(line);
     }
 
     private void updateGoal(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
         long id = Long.parseLong(request.getParameter("id"));
         String title = request.getParameter("title");
         String parent = request.getParameter("parent");
-        long parentId = Long.parseLong(parent);
-        Goal updateGoal;
-        if (parentId != 0) {
-            updateGoal = new Goal(id, title, parentId);
-        } else {
-            updateGoal = new Goal(id, title);
-        }
+        long parentId = ParseStringToLong(parent);
+        Goal updateGoal = new Goal(id, title, parentId);
         goalDao.update(updateGoal);
         response.sendRedirect("list");
     }
