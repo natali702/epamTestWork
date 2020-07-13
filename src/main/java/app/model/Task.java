@@ -82,6 +82,7 @@ public class Task {
         return description;
     }
 
+    @SuppressWarnings("unused")
     public void setDescription(String description) {
         this.description = description;
     }
@@ -98,6 +99,7 @@ public class Task {
         return taskDate;
     }
 
+    @SuppressWarnings("unused")
     public void setTaskDate(LocalDate taskDate) {
         this.taskDate = taskDate;
     }
@@ -106,6 +108,7 @@ public class Task {
         return status;
     }
 
+    @SuppressWarnings("unused")
     public void setStatus(boolean status) {
         this.status = status;
     }
@@ -114,6 +117,7 @@ public class Task {
         return goalId;
     }
 
+    @SuppressWarnings("unused")
     public void setGoalId(long goalId) {
         this.goalId = goalId;
     }
@@ -136,16 +140,15 @@ public class Task {
 
     @Override
     public boolean equals(Object obj) {
-
-        if (this == obj)
+        if (this == obj) {
             return true;
-
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
-
+        }
         Task other = (Task) obj;
         return id.equals(other.id);
     }

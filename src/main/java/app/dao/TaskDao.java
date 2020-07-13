@@ -12,6 +12,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Annotation @SuppressWarnings("ALL") used for region SQL_COMMANDS
+ */
 @SuppressWarnings("ALL")
 public class TaskDao implements Dao {
 

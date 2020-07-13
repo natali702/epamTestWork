@@ -1,7 +1,5 @@
 package app.utils;
 
-import app.controller.GoalController;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +16,8 @@ public class ControllerUtils {
         dispatcher.forward(request, response);
     }
 
-    public static boolean CheckUserSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public static boolean checkUserSession(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null) {
             ControllerUtils.showPage(request, response, JspPathUtils.LOGIN_PAGE);

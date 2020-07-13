@@ -53,14 +53,17 @@ public class Goal {
         return parentId;
     }
 
+    @SuppressWarnings("unused")
     public void setParentId(long parentId) {
         this.parentId = parentId;
     }
 
+    @SuppressWarnings("unused")
     public Goal getParent() {
         return parent;
     }
 
+    @SuppressWarnings("unused")
     public void setParent(Goal parent) {
         this.parent = parent;
     }

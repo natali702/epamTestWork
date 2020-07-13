@@ -16,7 +16,6 @@ import java.util.List;
 
 @WebServlet("/goal/*")
 public class GoalController extends HttpServlet {
-
     private GoalDao goalDao;
 
     public void init() {
@@ -30,7 +29,7 @@ public class GoalController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (!ControllerUtils.CheckUserSession(request, response)){
+        if (!ControllerUtils.checkUserSession(request, response)){
             return;
         }
         String action = request.getPathInfo();
@@ -61,7 +60,7 @@ public class GoalController extends HttpServlet {
                     ControllerUtils.showPage(request, response, JspPathUtils.LOGIN_PAGE);
                     break;
             }
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             throw new ServletException(ex);
         }
     }

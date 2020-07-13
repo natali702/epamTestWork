@@ -32,7 +32,7 @@ public class TaskController extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (!ControllerUtils.CheckUserSession(request, response)){
+        if (!ControllerUtils.checkUserSession(request, response)){
             return;
         }
         String action = request.getPathInfo();

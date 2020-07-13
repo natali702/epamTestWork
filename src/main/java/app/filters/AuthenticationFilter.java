@@ -13,7 +13,6 @@ import java.io.IOException;
 
 @WebFilter(urlPatterns = "/*")
 public class AuthenticationFilter implements Filter {
-
     private Authentication authService;
 
     @Override
