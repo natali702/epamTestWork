@@ -1,6 +1,5 @@
 package app.model;
 
-
 import java.util.Objects;
 
 public class User {
